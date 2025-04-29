@@ -12,6 +12,8 @@ Este documento describe los pasos básicos para iniciar un proyecto backend con 
    npm install --save-dev nodemon
    
 2. **Modifica el package.json:**
+Type:modules se usa para el uso de import y export,
+gracias al script de start podemos usar npm start para correr el servidor
    ```bash
     {
       "name": "ludusdevserver",
