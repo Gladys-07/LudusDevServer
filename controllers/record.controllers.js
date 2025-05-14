@@ -90,6 +90,8 @@ const newEviObser = (req, res, id_registro) => {
     );
 };
 
+
+/*
 export const getRecords = (req, res) => {
     pool.execute("select * from customer", (error, results) => {
         if (error){
@@ -105,8 +107,71 @@ export const getRecords = (req, res) => {
         )
     })
 };
+*/
 
+export const getRecords = async (req, res) => {
+    try {
+        const [results] = await pool.promise().query("SELECT * FROM Registro");
+        return res.status(200).json({
+            msg: "Registros obtenidos correctamente",
+            registros: results
+        });
+    } catch (error) {
+        return res.status(500).json({
+            msg: error.message,
+            registros: []
+        });
+    }
+};
 
+// GET /registers/:id
+export const getRecord = async (req, res) => {
+    const { id } = req.params;
+
+    if (!id) {
+        return res.status(400).json({ msg: "Falta el parámetro ID" });
+    }
+
+    try {
+        const [rows] = await pool.promise().query("SELECT * FROM Registro WHERE id_registro = ?", [id]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ msg: `No se encontró un registro con id ${id}` });
+        }
+
+        return res.status(200).json({
+            msg: "Registro encontrado",
+            registro: rows[0]
+        });
+    } catch (error) {
+        console.error("Error al obtener el registro:", error);
+        return res.status(500).json({ msg: "Error al obtener el registro" });
+    }
+};
+
+export const getTotalRegisters = async (req, res) => {
+    try {
+        const [result] = await pool.promise().query("SELECT COUNT(*) AS total FROM Registro");
+        return res.status(200).json({ total: result[0].total });
+    } catch (error) {
+        console.error("Error al contar registros:", error);
+        return res.status(500).json({ msg: "Error al contar registros" });
+    }
+};
+
+export const getRegistersByType = async (req, res) => {
+    try {
+        const [result] = await pool.promise().query(`
+            SELECT tipoRegistro, COUNT(*) AS cantidad
+            FROM Registro
+            GROUP BY tipoRegistro
+        `);
+        return res.status(200).json({ porTipo: result });
+    } catch (error) {
+        console.error("Error al contar por tipo de registro:", error);
+        return res.status(500).json({ msg: "Error al contar por tipo" });
+    }
+};
 
 
 // opciones de registros a agregar
