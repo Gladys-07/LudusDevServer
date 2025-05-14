@@ -8,7 +8,7 @@ const cleanValue = ( value ) => {
     return value;
 }
 
-export const newRecord = (req, res) => {
+export const newRecord = async (req, res) => {
     try{
         const { estadoTiempo, estacion, tipoRegistro } = req.body; 
         if (tipoRegistro !== null){
@@ -90,24 +90,6 @@ const newEviObser = (req, res, id_registro) => {
     );
 };
 
-
-/*
-export const getRecords = (req, res) => {
-    pool.execute("select * from customer", (error, results) => {
-        if (error){
-            return res.status(500).json({
-                msg: error.message, 
-                users: []
-            });
-        };
-        return res.status(200).json({
-                msg: "Good connection to DB",
-                customers: results
-            }
-        )
-    })
-};
-*/
 
 export const getRecords = async (req, res) => {
     try {

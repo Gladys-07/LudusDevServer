@@ -3,11 +3,11 @@ import { newRecord, getRecords, getTotalRegisters, getRegistersByType } from "..
 
 const router = Router()
 
-router.post("/newRecord", newRecord);
-router.get("/Records", getRecords);
-router.get("/", (req, res) => {
+router.get("/", (req, res) => { 
     res.send("Hola desde API demo");
 });
+router.post("/newRecord", newRecord);
+router.get("/Records", getRecords);
 router.get("/registers/count", getTotalRegisters);
 router.get("/registers/count-by-type", getRegistersByType);
 
