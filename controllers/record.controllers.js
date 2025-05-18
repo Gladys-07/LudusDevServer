@@ -28,6 +28,9 @@ export const newRecord = async (req, res) => {
                         case "camaras_trampa":
                             newCamaraTrampa(req, res, id_registro);
                             break;
+                        case "fauna": //Case fauna 
+                            newFauna(req, res, id_registro);
+                            break;
                         default:
                             return res.status(200).json({
                                 msg: "Base registry completed"
@@ -162,6 +165,89 @@ export const getRegistersByType = async (req, res) => {
 // case "Fauna en Punto de Conteo":
 //     break;
 // case "Fauna Búsqueda Libre":
+const newFaunaBusquedaLibre = (req, res, id_registro) => {
+    const { zona, tipo_animal, nombre_comun, nombre_cientifico, numero_individuos, tipo_observacion, altura_observacion, evidencias, observaciones } = req.body;
+
+    pool.execute(
+        `INSERT INTO fauna_busqueda_libre(
+            id_registro, zona, tipo_animal, nombre_comun, 
+            nombre_cientifico, numero_individuos, 
+            tipo_observacion, altura_observacion
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+            cleanValue(id_registro), cleanValue(zona), cleanValue(tipo_animal),
+            cleanValue(nombre_comun), cleanValue(nombre_cientifico),
+            cleanValue(numero_individuos), cleanValue(tipo_observacion),
+            cleanValue(altura_observacion)
+        ],
+        (error, results) => {
+            if (error) {
+                return res.status(500).json({
+                    msg: error.message,
+                    e: "Error en newFaunaBusquedaLibre"
+                });
+            }
+
+            console.log("Inserted new Fauna Búsqueda Libre data");
+            newEviObserFauna(req, res, id_registro);
+        }
+    );
+};
+
+// Observaciones y evidencias
+const newEviObserFauna = (req, res, id_registro) => {
+    const { evidencias, observaciones } = req.body;
+
+    pool.execute(
+        "INSERT INTO evidencias(id_registro, evidencias, observaciones) VALUES (?, ?, ?)",
+        [
+            cleanValue(id_registro),
+            cleanValue(evidencias),
+            cleanValue(observaciones)
+        ],
+        (error, results) => {
+            if (error) {
+                return res.status(500).json({
+                    msg: error.message,
+                    e: "Error en newEviObserFauna"
+                });
+            }
+
+            console.log("Evidencias registradas (Fauna)");
+            return res.status(200).json({
+                msg: "Registro de fauna completado",
+                results: results
+            });
+        }
+    );
+};
+//Registro de fauna por ID de registro
+export const getFaunaByRegistro = async (req, res) => {
+    const { id } = req.params;
+
+    if (!id) {
+        return res.status(400).json({ msg: "Falta el parámetro ID" });
+    }
+
+    try {
+        const [rows] = await pool.promise().query(
+            "SELECT * FROM fauna WHERE id_registro = ?", [id]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ msg: `No se encontró fauna con id_registro ${id}` });
+        }
+
+        return res.status(200).json({
+            msg: "Fauna encontrada",
+            fauna: rows
+        });
+    } catch (error) {
+        console.error("Error al buscar fauna:", error);
+        return res.status(500).json({ msg: "Error al buscar fauna" });
+    }
+};
+
 //     break;
 // case "Validación de Cobertura":
 //     break;
